@@ -1,0 +1,14 @@
+{
+  "name": "skillbrief",
+  "version": "0.1.0",
+  "description": "Traceable repo-to-content brief generator for launch posts and demo preparation.",
+  "main": "src/index.js",
+  "bin": {
+    "skillbrief": "src/cli.js"
+  },
+  "scripts": {
+    "test": "node --test",
+    "check": "node --check src/index.js && node --check src/cli.js",
+    "smoke": "node src/cli.js fixtures/example.json"
+  }
+}
