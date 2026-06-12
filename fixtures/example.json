@@ -1,0 +1,27 @@
+{
+  "repo": "demo-widget",
+  "audience": "agent builders",
+  "recentCommits": [
+    "add fixture-backed tests",
+    "document dry-run behavior",
+    "wire CLI smoke command"
+  ],
+  "files": [
+    "src/index.js",
+    "test/skillbrief.test.js",
+    "README.md"
+  ],
+  "tests": [
+    "npm test",
+    "npm run smoke"
+  ],
+  "risks": [
+    "No live social posting is performed",
+    "Claims must be backed by fixture facts"
+  ],
+  "goals": [
+    "launch post",
+    "demo script",
+    "README refresh"
+  ]
+}
