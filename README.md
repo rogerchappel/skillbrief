@@ -7,6 +7,7 @@ Traceable repo-to-content brief generator for launch posts and demo preparation.
 ```sh
 npm test
 npm run smoke
+npm run release:check
 ```
 
 ## CLI
@@ -16,6 +17,17 @@ Run the CLI against the included fixture.
 ```sh
 npm run smoke
 ```
+
+## Release Verification
+
+```sh
+npm run package:smoke
+npm run release:check
+```
+
+`package:smoke` runs `npm pack --dry-run` and confirms the package includes the
+CLI, library source, fixture, release notes, README, and license. `release:check`
+combines syntax checks, tests, the fixture smoke, and package smoke for CI.
 
 ## Library
 
