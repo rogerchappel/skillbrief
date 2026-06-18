@@ -36,8 +36,10 @@
     "fixtures",
     "docs",
     "scripts",
+    "CHANGELOG.md",
     "README.md",
     "LICENSE",
-    "SECURITY.md"
+    "SECURITY.md",
+    "CONTRIBUTING.md"
   ]
 }
