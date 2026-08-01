@@ -12,11 +12,24 @@ npm run release:check
 
 ## CLI
 
-Run the CLI against the included fixture.
+Run the CLI against the included fixture, a JSON file, or JSON on standard input.
 
 ```sh
 npm run smoke
+skillbrief brief-input.json
+printf '%s' '{"repo":"demo","files":"README.md"}' | skillbrief -
 ```
+
+## Input Format
+
+The JSON root must be an object. `repo` and `audience` are optional strings.
+`recentCommits`, `files`, `tests`, `risks`, and `goals` each accept either one
+string or an array of strings. Omitted fields use the report defaults; empty
+strings and empty arrays are treated as missing evidence.
+
+Other root types, object-valued fields or list entries, numbers, booleans, and
+`null` are rejected with a field-specific error. The CLI writes that error to
+standard error and exits with a nonzero status instead of producing a brief.
 
 ## Release Verification
 
@@ -31,7 +44,9 @@ combines syntax checks, tests, the fixture smoke, and package smoke for CI.
 
 ## Library
 
-Import from `src/index.js` in local automation.
+Import `buildBrief`, `parseInput`, or `normalizeList` from `src/index.js` in
+local automation. `buildBrief` enforces the input format above and throws a
+`TypeError` for unsupported values.
 
 ## Limitations
 
