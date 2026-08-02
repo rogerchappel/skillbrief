@@ -22,10 +22,14 @@ printf '%s' '{"repo":"demo","files":"README.md"}' | skillbrief -
 
 ## Input Format
 
-The JSON root must be an object. `repo` and `audience` are optional strings.
+The JSON root must be an object. `repo` and `audience` are optional single-line strings.
 `recentCommits`, `files`, `tests`, `risks`, and `goals` each accept either one
-string or an array of strings. Omitted fields use the report defaults; empty
-strings and empty arrays are treated as missing evidence.
+single-line string or an array of single-line strings. Omitted fields use the
+report defaults; empty strings, whitespace-only strings, and empty arrays are
+treated as missing evidence. Carriage returns and line feeds are rejected in
+all string fields so input cannot introduce extra Markdown lines or sections.
+Punctuation and other characters within a non-whitespace single line are kept
+unchanged.
 
 Other root types, object-valued fields or list entries, numbers, booleans, and
 `null` are rejected with a field-specific error. The CLI writes that error to
