@@ -34,6 +34,50 @@ test('accepts supported scalar and list values', () => {
   assert.match(brief, /- npm test/);
 });
 
+test('treats empty and whitespace-only values as missing', () => {
+  const brief = buildBrief({
+    repo: '   ',
+    audience: '\t',
+    recentCommits: ' ',
+    files: ['', ' \t '],
+    tests: ['\t'],
+    risks: ' ',
+    goals: ['']
+  });
+
+  assert.match(brief, /# Content Brief: unknown repo/);
+  assert.match(brief, /Audience: maintainers/);
+  assert.match(brief, /## Proof Points\n- Gap: no evidence supplied/);
+  assert.match(brief, /## Gaps\n- Add commits or files/);
+  assert.doesNotMatch(brief, /No unsupported claims detected/);
+});
+
+test('rejects line breaks in scalar and list fields', () => {
+  for (const separator of ['\n', '\r', '\r\n']) {
+    assert.throws(
+      () => buildBrief({ repo: `demo${separator}## Injected` }),
+      /repo: expected a single-line string/
+    );
+    assert.throws(
+      () => buildBrief({ files: [`README.md${separator}- injected`] }),
+      /files\[0\]: expected a single-line string/
+    );
+  }
+});
+
+test('preserves legitimate single-line punctuation', () => {
+  const brief = buildBrief({
+    repo: '@scope/demo: v2.0!',
+    recentCommits: 'fix(parser): accept commas, colons & dashes — safely',
+    files: ['docs/API (v2).md'],
+    goals: ['Explain "why?" without hype.']
+  });
+
+  assert.match(brief, /Content Brief: @scope\/demo: v2\.0!/);
+  assert.match(brief, /fix\(parser\): accept commas, colons & dashes — safely/);
+  assert.match(brief, /File: docs\/API \(v2\)\.md/);
+});
+
 test('rejects non-object input roots', () => {
   for (const input of [null, [], 'brief', 42, true]) {
     assert.throws(() => buildBrief(input), /input: expected an object/);
@@ -92,4 +136,20 @@ test('CLI reports field-specific validation errors', () => {
   assert.equal(invalidEntry.status, 1);
   assert.match(invalidEntry.stderr, /skillbrief: files\[0\]: expected a string/);
   assert.equal(invalidEntry.stdout, '');
+
+  const multilineScalar = spawnSync(process.execPath, [cli, '-'], {
+    input: JSON.stringify({ audience: 'maintainers\n## Injected' }),
+    encoding: 'utf8'
+  });
+  assert.equal(multilineScalar.status, 1);
+  assert.match(multilineScalar.stderr, /skillbrief: audience: expected a single-line string/);
+  assert.equal(multilineScalar.stdout, '');
+
+  const multilineEntry = spawnSync(process.execPath, [cli, '-'], {
+    input: JSON.stringify({ recentCommits: ['abc123\r- injected'] }),
+    encoding: 'utf8'
+  });
+  assert.equal(multilineEntry.status, 1);
+  assert.match(multilineEntry.stderr, /skillbrief: recentCommits\[0\]: expected a single-line string/);
+  assert.equal(multilineEntry.stdout, '');
 });
