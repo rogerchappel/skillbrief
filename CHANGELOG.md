@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Reject unsupported brief input shapes with concise, field-specific errors.
+- Reject multiline values and prevent whitespace-only values from counting as evidence.
 - Document the accepted CLI and library input format.
 
 ## 0.1.0

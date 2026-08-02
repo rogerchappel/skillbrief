@@ -1,6 +1,9 @@
 function normalizeList(value, field = 'value') {
   if (value === undefined) return [];
-  if (typeof value === 'string') return value ? [value] : [];
+  if (typeof value === 'string') {
+    validateSingleLine(value, field);
+    return value.trim() ? [value] : [];
+  }
   if (!Array.isArray(value)) {
     throw new TypeError(`${field}: expected a string or an array of strings`);
   }
@@ -8,15 +11,23 @@ function normalizeList(value, field = 'value') {
     if (typeof item !== 'string') {
       throw new TypeError(`${field}[${index}]: expected a string`);
     }
+    validateSingleLine(item, `${field}[${index}]`);
   });
-  return value.filter(Boolean);
+  return value.filter((item) => item.trim());
+}
+function validateSingleLine(value, field) {
+  if (/[\r\n]/.test(value)) {
+    throw new TypeError(`${field}: expected a single-line string`);
+  }
 }
 function optionalString(facts, field, fallback) {
   const value = facts[field];
-  if (value === undefined || value === '') return fallback;
+  if (value === undefined) return fallback;
   if (typeof value !== 'string') {
     throw new TypeError(`${field}: expected a string`);
   }
+  validateSingleLine(value, field);
+  if (!value.trim()) return fallback;
   return value;
 }
 function bullet(items) {
