@@ -12,13 +12,18 @@ npm run release:check
 
 ## CLI
 
-Run the CLI against the included fixture, a JSON file, or JSON on standard input.
+Run the CLI with exactly one JSON file operand. Use `-` as the operand to read
+JSON from standard input. `--help`/`-h` and `--version`/`-v` are also supported.
 
 ```sh
 npm run smoke
 skillbrief brief-input.json
 printf '%s' '{"repo":"demo","files":"README.md"}' | skillbrief -
 ```
+
+Unknown options, missing input, and extra operands print the usage string to
+standard error and exit with status 2. Input and validation failures exit with
+status 1.
 
 ## Input Format
 

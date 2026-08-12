@@ -123,6 +123,39 @@ test('CLI accepts fixture files and stdin', () => {
   assert.match(stdin.stdout, /Content Brief: stdin-demo/);
 });
 
+test('CLI supports help and version options', () => {
+  for (const option of ['--help', '-h']) {
+    const result = spawnSync(process.execPath, [cli, option], { encoding: 'utf8' });
+    assert.equal(result.status, 0, result.stderr);
+    assert.match(result.stdout, /^Usage: skillbrief <brief-input\.json\|->/);
+    assert.equal(result.stderr, '');
+  }
+
+  for (const option of ['--version', '-v']) {
+    const result = spawnSync(process.execPath, [cli, option], { encoding: 'utf8' });
+    assert.equal(result.status, 0, result.stderr);
+    assert.match(result.stdout, /^\d+\.\d+\.\d+\n$/);
+    assert.equal(result.stderr, '');
+  }
+});
+
+test('CLI rejects invalid argument forms with a usage error', () => {
+  const cases = [
+    { args: [], message: /missing input/ },
+    { args: ['--bogus'], message: /unknown option: --bogus/ },
+    { args: ['fixtures/example.json', 'extra'], message: /unexpected operand: extra/ },
+    { args: ['--help', 'extra'], message: /unexpected operand: extra/ }
+  ];
+
+  for (const { args, message } of cases) {
+    const result = spawnSync(process.execPath, [cli, ...args], { encoding: 'utf8' });
+    assert.equal(result.status, 2);
+    assert.match(result.stderr, message);
+    assert.match(result.stderr, /Usage: skillbrief <brief-input\.json\|->/);
+    assert.equal(result.stdout, '');
+  }
+});
+
 test('CLI reports field-specific validation errors', () => {
   const invalidRoot = spawnSync(process.execPath, [cli, '-'], { input: '[]', encoding: 'utf8' });
   assert.equal(invalidRoot.status, 1);
