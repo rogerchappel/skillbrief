@@ -47,9 +47,12 @@ npm run package:smoke
 npm run release:check
 ```
 
-`package:smoke` runs `npm pack --dry-run` and confirms the package includes the
-CLI, library source, fixture, release notes, README, and license. `release:check`
-combines syntax checks, tests, the fixture smoke, and package smoke for CI.
+`package:smoke` creates the real package tarball, installs it with lifecycle
+scripts disabled in an isolated consumer project, and confirms the installed
+files and `node_modules/.bin/skillbrief` entry. It then runs that installed CLI
+for help, version, a packaged fixture, and standard-input use. Temporary package
+and consumer artifacts are removed after the check. `release:check` combines
+syntax checks, tests, the fixture smoke, and this consumer-install smoke for CI.
 
 ## Library
 
