@@ -11,6 +11,11 @@ test('builds a traceable content brief', () => {
   assert.match(brief, /Commit: add tests/);
   assert.match(brief, /dry-run only/);
 });
+test('keeps Markdown-structural values within their intended lines and sections', () => {
+  const brief = buildBrief({ repo: 'demo\n## Injected heading', audience: 'builders\n- injected audience', recentCommits: ['fix\n## Injected section'], files: ['README.md\n- injected file'], tests: ['npm test\n## Injected verification'], risks: ['risk\n# injected heading'], goals: ['launch\n## Injected goal'] });
+  for (const expected of ['demo\\n## Injected heading', 'builders\\n- injected audience', 'fix\\n## Injected section', 'README.md\\n- injected file', 'npm test\\n## Injected verification', 'risk\\n# injected heading', 'launch\\n## Injected goal']) assert.ok(brief.includes(expected), expected);
+  assert.equal((brief.match(/^## /gm) || []).length, 6);
+});
 test('reports gaps when proof is missing', () => {
   assert.match(buildBrief({ repo: 'empty' }), /Add commits or files/);
 });
@@ -50,19 +55,6 @@ test('treats empty and whitespace-only values as missing', () => {
   assert.match(brief, /## Proof Points\n- Gap: no evidence supplied/);
   assert.match(brief, /## Gaps\n- Add commits or files/);
   assert.doesNotMatch(brief, /No unsupported claims detected/);
-});
-
-test('rejects line breaks in scalar and list fields', () => {
-  for (const separator of ['\n', '\r', '\r\n']) {
-    assert.throws(
-      () => buildBrief({ repo: `demo${separator}## Injected` }),
-      /repo: expected a single-line string/
-    );
-    assert.throws(
-      () => buildBrief({ files: [`README.md${separator}- injected`] }),
-      /files\[0\]: expected a single-line string/
-    );
-  }
 });
 
 test('preserves legitimate single-line punctuation', () => {
@@ -170,19 +162,4 @@ test('CLI reports field-specific validation errors', () => {
   assert.match(invalidEntry.stderr, /skillbrief: files\[0\]: expected a string/);
   assert.equal(invalidEntry.stdout, '');
 
-  const multilineScalar = spawnSync(process.execPath, [cli, '-'], {
-    input: JSON.stringify({ audience: 'maintainers\n## Injected' }),
-    encoding: 'utf8'
-  });
-  assert.equal(multilineScalar.status, 1);
-  assert.match(multilineScalar.stderr, /skillbrief: audience: expected a single-line string/);
-  assert.equal(multilineScalar.stdout, '');
-
-  const multilineEntry = spawnSync(process.execPath, [cli, '-'], {
-    input: JSON.stringify({ recentCommits: ['abc123\r- injected'] }),
-    encoding: 'utf8'
-  });
-  assert.equal(multilineEntry.status, 1);
-  assert.match(multilineEntry.stderr, /skillbrief: recentCommits\[0\]: expected a single-line string/);
-  assert.equal(multilineEntry.stdout, '');
 });
